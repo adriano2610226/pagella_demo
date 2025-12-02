@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Pagelle Dipendenti - Console Premi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #e0edff;
+      --accent: #16a34a;
+      --danger: #e53935;
+      --bg: #f3f4f6;
+      --border: #e0e0e0;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top left, #e0f2fe 0, #f3f4f6 45%, #e5e7eb 100%);
+      color: var(--text-main);
+    }
+    header {
+      background: linear-gradient(120deg, #1d4ed8, #2563eb, #0ea5e9);
+      color: white;
+      padding: 16px 20px 12px;
+      box-shadow: 0 2px 10px rgba(15,23,42,0.35);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.03em;
+    }
+    header .subtitle {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.95;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 12px auto 32px;
+      padding: 0 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin: 10px 0 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.85);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      border: 1px solid rgba(148,163,184,0.6);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(6px);
+    }
+    .tab-btn span.icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--primary);
+    }
+    .tab-btn.active {
+      background: #1d4ed8;
+      color: white;
+      border-color: #1d4ed8;
+      box-shadow: 0 3px 8px rgba(37,99,235,0.45);
+    }
+    .tab-btn.active span.icon {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.96);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      box-shadow:
+        0 18px 35px rgba(15,23,42,0.10),
+        0 1px 0 rgba(255,255,255,0.9) inset;
+      margin-bottom: 18px;
+      border: 1px solid rgba(148,163,184,0.45);
+      backdrop-filter: blur(8px);
+    }
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card h2::before {
+      content: "";
+      width: 8px;
+      height: 22px;
+      border-radius: 999px;
+      background: linear-gradient(180deg,#2563eb,#22c55e);
+      display: inline-block;
+    }
+    .card .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #0f172a;
+    }
+    select,
+    input[type="number"],
+    input[type="date"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 7px 9px;
+      margin-bottom: 8px;
+      border-radius: 9px;
+      border: 1px solid #d1d5db;
+      font-size: 13px;
+      background: #f9fafb;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, transform 0.05s;
+    }
+    select:focus,
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+      transform: translateY(-0.5px);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 800px) {
+      .grid,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    th,
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #edf2f7;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: linear-gradient(180deg,#f9fafb,#f3f4f6);
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    tr:nth-child(even) td {
+      background: #fbfdff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 8px;
+      box-shadow: 0 2px 8px rgba(22,163,74,0.4);
+      transition: transform 0.08s, box-shadow 0.1s, background 0.1s;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(22,163,74,0.55);
+      background: #15803d;
+    }
+    .btn.secondary {
+      background: #64748b;
+      box-shadow: none;
+      margin-left: 6px;
+    }
+    .btn.secondary:hover {
+      background: #475569;
+      box-shadow: 0 2px 8px rgba(71,85,105,0.45);
+    }
+    .btn.small {
+      padding: 5px 11px;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .info {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .info strong {
+      color: var(--primary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: #e5e7eb;
+    }
+    .badge.gold {
+      background: #facc15;
+      color: #1f2933;
+    }
+    .badge.silver {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .badge.bronze {
+      background: #fed7aa;
+      color: #7c2d12;
+    }
+
+    .level-oro {
+      color: #b45309;
+      font-weight: 600;
+    }
+    .level-argento {
+      color: #4b5563;
+      font-weight: 600;
+    }
+    .level-bronzo {
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    .highlight {
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+    .small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .section-title {
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      font-size: 11px;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+
+    .print-block {
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      padding: 10px 10px 10px;
+      margin-top: 10px;
+      background: #f9fafb;
+    }
+    .print-block h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .layout-inline {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .badge-week {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 11px;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .award-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .award-card {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      background: #f9fafb;
+      font-size: 12px;
+    }
+    .award-card h4 {
+      margin: 0 0 4px;
+      font-size: 13px;
+    }
+    .award-card .tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .emp-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 6px;
+      font-size: 13px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .emp-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .emp-list button {
+      border: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .emp-list button:hover {
+      background: #fecaca;
+    }
+
+    @media print {
+      header, .tabs {
+        display: none;
+      }
+      body {
+        background: white;
+      }
+      .card {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Pagelle Dipendenti</h1>
+  <div class="subtitle">Valutazioni, classifiche, premi, guida e gestione dipendenti</div>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab-pagella">
+      <span class="icon">1</span> Nuova pagella
+    </button>
+    <button class="tab-btn" data-tab="tab-classifica">
+      <span class="icon">2</span> Classifiche & Premi
+    </button>
+    <button class="tab-btn" data-tab="tab-dettaglio">
+      <span class="icon">3</span> Pagella per dipendente
+    </button>
+    <button class="tab-btn" data-tab="tab-guida">
+      <span class="icon">4</span> Guida & Dipendenti
+    </button>
+  </div>
+
+  <!-- TAB 1: INSERIMENTO PAGELLA -->
+  <section id="tab-pagella" class="card">
+    <h2>Compila pagella settimanale</h2>
+    <p class="hint">
+      1) Seleziona <strong>dipendente</strong> e <strong>settimana</strong> •
+      2) Compila i voti (per le assenze inserisci i <strong>giorni</strong>) •
+      3) Premi <strong>Salva pagella</strong>.
+    </p>
+
+    <div class="grid">
+      <div>
+        <label for="nome">Dipendente</label>
+        <select id="nome"></select>
+      </div>
+      <div>
+        <label for="settimana">Settimana del mese</label>
+        <select id="settimana">
+          <option value="1">Settimana 1 (dal 1 al 7)</option>
+          <option value="2">Settimana 2 (dal 8 al 14)</option>
+          <option value="3">Settimana 3 (dal 15 al 21)</option>
+          <option value="4">Settimana 4 (dal 22 a fine mese)</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px;margin:8px 0 4px;">Voci di valutazione</h3>
+    <p class="small">
+      Per <strong>Assenze settimanali (giorni)</strong> inserisci i giorni di assenza (es. 2).
+      Il sistema li trasforma in un voto: 0 giorni = 10, 1 = 7, 2 = 4, 3 o più = 1.<br>
+      Per <strong>Presenza settimanale</strong> selezioni solo se la presenza è stata completa (sì/no). Il voto viene calcolato in automatico.
+    </p>
+
+    <table id="tabella-voti">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Voce</th>
+          <th>Peso</th>
+          <th>Valore</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <button class="btn" id="salva-btn">
+      💾 Salva pagella
+    </button>
+    <button class="btn secondary" id="reset-btn">
+      🧹 Svuota campi
+    </button>
+
+    <div class="info" id="salva-info"></div>
+  </section>
+
+  <!-- TAB 2: CLASSIFICHE & PREMI -->
+  <section id="tab-classifica" class="card" style="display:none;">
+    <h2>Classifiche, livelli premi e testi per la chat</h2>
+    <p class="hint">
+      Qui hai tutto per pubblicare ogni settimana e ogni mese la classifica, i livelli (Oro/Argento/Bronzo)
+      e i messaggi già pronti da copiare nella chat aziendale.
+    </p>
+
+    <div class="section-title">Classifica settimanale</div>
+    <div class="grid">
+      <div>
+        <label for="classifica-settimana">Settimana</label>
+        <select id="classifica-settimana">
+          <option value="1">Settimana 1</option>
+          <option value="2">Settimana 2</option>
+          <option value="3">Settimana 3</option>
+          <option value="4">Settimana 4</option>
+        </select>
+        <div class="small pill">
+          ℹ Bonus team: nessuno &lt; 6 → +0,2 • almeno 2 &lt; 5 → -0,2
+        </div>
+      </div>
+      <div>
+        <label>Testo pronto per chat – classifica settimanale</label>
+        <textarea id="chat-settimana" readonly></textarea>
+        <button class="btn small" id="genera-chat-sett">✏ Genera testo settimana</button>
+      </div>
+    </div>
+
+    <table id="tabella-classifica-sett">
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th>Nome</th>
+          <th>Voto settimana</th>
+          <th>Bonus team sett.</th>
+          <th>Bonus pers.</th>
+          <th>Voto finale sett.</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="info" id="info-classifica-sett"></div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid var(--border);">
+
+    <div class="section-title">Classifica mensile + livelli Oro / Argento / Bronzo</div>
+    <p class="small">
+      Livelli premio (sulla media mensile):<br>
+      <span class="level-oro">⭐ Oro</span> ≥ 8,5 •
+      <span class="level-argento">⭐ Argento</span> ≥ 7,5 •
+      <span class="level-bronzo">Bronzo</span> &lt; 7,5
+    </p>
+    <table id="tabella-classifica-mese">
+      <thead>
+        <tr>
+          <th>Pos.</th>
+          <th>Nome</th>
+          <th>Media settimane</th>
+          <th>Livello</th>
+          <th>Bonus team</th>
+          <th>Bonus pers.</th>
+          <th>Voto finale</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="info" id="info-classifica-mese"></div>
+
+    <div class="section-title">Riepilogo premi del mese</div>
+    <div class="award-cards">
+      <div class="award-card">
+        <div class="tag">Top Player del mese</div>
+        <h4 id="award-topplayer">N/D</h4>
+        <div class="small" id="award-topplayer-info"></div>
+      </div>
+      <div class="award-card">
+        <div class="tag">Miglior crescita del mese</div>
+        <h4 id="award-growth">N/D</h4>
+        <div class="small" id="award-growth-info"></div>
+      </div>
+      <div class="award-card">
+        <div class="tag">Riepilogo livelli</div>
+        <div class="small" id="award-levels-summary">Nessun dato ancora.</div>
+      </div>
+    </div>
+
+    <div class="section-title">Testo pronto per chat – riepilogo mensile</div>
+    <textarea id="chat-mese" readonly></textarea>
+    <button class="btn small" id="genera-chat-mese">✏ Genera testo mensile</button>
+  </section>
+
+  <!-- TAB 3: DETTAGLIO / STAMPA PAGELLA -->
+  <section id="tab-dettaglio" class="card" style="display:none;">
+    <h2>Pagella per dipendente (pronta da stampa)</h2>
+    <p class="hint">
+      Scegli il dipendente, la settimana e (se vuoi) il periodo con le date. Poi premi
+      <strong>Mostra pagella</strong> e usa la stampa del browser (CTRL+P) per avere il PDF.
+    </p>
+
+    <div class="grid-3">
+      <div>
+        <label for="det-nome">Dipendente</label>
+        <select id="det-nome"></select>
+      </div>
+      <div>
+        <label for="det-settimana">Settimana</label>
+        <select id="det-settimana">
+          <option value="1">Settimana 1</option>
+          <option value="2">Settimana 2</option>
+          <option value="3">Settimana 3</option>
+          <option value="4">Settimana 4</option>
+        </select>
+      </div>
+      <div>
+        <label for="det-mese">Mese (testo libero)</label>
+        <input type="text" id="det-mese" placeholder="es. Gennaio 2026">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="det-da">Da data</label>
+        <input type="date" id="det-da">
+      </div>
+      <div>
+        <label for="det-a">A data</label>
+        <input type="date" id="det-a">
+      </div>
+    </div>
+
+    <button class="btn" id="det-mostra-btn">
+      📄 Mostra pagella pronta da stampare
+    </button>
+
+    <div class="print-block" id="area-pagella">
+      <div class="layout-inline">
+        <h3 id="det-titolo">Pagella dipendente</h3>
+        <span class="badge-week" id="det-week-pill">Settimana -</span>
+      </div>
+      <p class="small" id="det-intestazione"></p>
+
+      <table id="tabella-dettaglio-pagella">
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Voce</th>
+            <th>Peso</th>
+            <th>Voto</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="info" id="det-totali"></div>
+      <div class="info" id="det-relazione"></div>
+    </div>
+
+    <h3 class="section-title">Riepilogo voti per settimana</h3>
+    <table id="tabella-dettaglio-weeks">
+      <thead>
+        <tr>
+          <th>Settimana</th>
+          <th>Voto finale settimana</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="info" id="info-dettaglio-weeks"></div>
+  </section>
+
+  <!-- TAB 4: GUIDA & GESTIONE DIPENDENTI -->
+  <section id="tab-guida" class="card" style="display:none;">
+    <h2>Guida alla pagella & gestione dipendenti</h2>
+    <p class="hint">
+      Qui trovi la spiegazione di come funziona la pagella, il sistema premi e puoi gestire l'elenco
+      dei dipendenti (aggiunta/rimozione).
+    </p>
+
+    <div class="section-title">Cos'è la pagella e come funziona</div>
+    <p class="small">
+      La pagella è una valutazione settimanale da 1 a 10 su vari aspetti: puntualità, presenze, atteggiamento,
+      collaborazione, responsabilità, comunicazione, ecc. Alcuni criteri pesano di più (puntualità, presenze,
+      attitudine, influenza positiva).<br>
+      Ogni settimana viene calcolato un <strong>voto finale</strong>. Le settimane compongono la
+      <strong>classifica settimanale</strong> e, facendo la media, la <strong>classifica mensile</strong>.
+    </p>
+
+    <div class="section-title">Primo, secondo, terzo posto & livelli</div>
+    <p class="small">
+      Nella classifica mensile, i primi 3 in ordine di <strong>voto finale</strong> sono i Top 3 del mese.
+      Inoltre, ogni dipendente ha un <strong>livello</strong> in base alla media mensile:
+    </p>
+    <ul class="small">
+      <li><span class="level-oro">⭐ Livello Oro</span> – media ≥ 8,5 (prestazione eccellente)</li>
+      <li><span class="level-argento">⭐ Livello Argento</span> – media ≥ 7,5 (buona prestazione)</li>
+      <li><span class="level-bronzo">Livello Bronzo</span> – media &lt; 7,5 (area da migliorare)</li>
+    </ul>
+
+    <div class="section-title">Voto team & bonus</div>
+    <p class="small">
+      Il <strong>bonus team</strong> premia o penalizza tutti in base al comportamento di gruppo:
+    </p>
+    <ul class="small">
+      <li>Se <strong>nessuno</strong> è sotto il 6 → <strong>+0,2</strong> a tutti (il team è solido).</li>
+      <li>Se ci sono <strong>almeno 2 sotto il 5</strong> → <strong>-0,2</strong> a tutti (il team trascina in basso).</li>
+      <li>Il migliore prende <strong>+0,1</strong> extra, il peggiore <strong>-0,1</strong> (bonus personale).</li>
+    </ul>
+
+    <div class="section-title">Come avere numeri alti</div>
+    <p class="small">
+      Per salire in classifica e puntare a Oro/Argento:
+    </p>
+    <ul class="small">
+      <li><strong>Puntualità & presenze</strong>: arrivare in orario e ridurre al minimo le assenze.</li>
+      <li><strong>Atteggiamento</strong>: spirito positivo, collaborazione, niente conflitti inutili.</li>
+      <li><strong>Influenza positiva</strong>: non trascinare il clima verso il basso, ma motivare gli altri.</li>
+      <li><strong>Responsabilità</strong>: ammettere gli errori, portare soluzioni, non scaricare sui colleghi.</li>
+      <li><strong>Continuità</strong>: mantenere un buon livello per tutto il mese, non solo una settimana.</li>
+    </ul>
+
+    <div class="section-title">Gestione elenco dipendenti</div>
+    <div class="grid">
+      <div>
+        <label for="emp-new">Aggiungi nuovo dipendente</label>
+        <input type="text" id="emp-new" placeholder="Nome e cognome">
+        <button class="btn small" id="emp-add">➕ Aggiungi</button>
+        <div class="info" id="emp-info"></div>
+      </div>
+      <div>
+        <label>Elenco dipendenti (puoi rimuovere chi non lavora più)</label>
+        <ul class="emp-list" id="emp-list"></ul>
+        <p class="small">
+          Se rimuovi un dipendente dall'elenco non apparirà più nelle classifiche future,
+          ma i dati salvati rimangono comunque nella memoria dello strumento.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const defaultEmployees = [
+  "BALBONI KEVIN","BLANDINO SALVO","CHIARELLO BENEDETTO","CIOLINO GIUSEPPE",
+  "COGLITORE GIUSEPPE","D'AMICO NUNZIO","DAIDONE SALVO","DE LEO SALVATORE",
+  "GALATI ANTONINO","GALLANO ROSARIO","LANZA LUCA","LO COCO LEANDRO",
+  "MINEO MAURIZIO","RAMPOLLO GIUSEPPE","ROMANO FRANCESCO","SESSA ANTONIO",
+  "USALA DINO","BRUNETTO DANIELE"
+];
+
+const criteria = [
+  {
+    id:"puntualita",
+    cat:"Prestazioni operative",
+    label:"Puntualità",
+    desc:"Arriva in orario all'inizio turno e rientra puntuale dalle pause.",
+    weight:1.4,
+    type:"voto"
+  },
+  {
+    id:"presenza",
+    cat:"Prestazioni operative",
+    label:"Presenza settimanale",
+    desc:"Ha rispettato tutti i turni previsti senza mancare giornate non autorizzate.",
+    weight:1.4,
+    type:"presenzaFlag"
+  },
+  {
+    id:"prod",
+    cat:"Prestazioni operative",
+    label:"Produttività",
+    desc:"Tiene un buon ritmo di lavoro e rispetta gli obiettivi assegnati.",
+    weight:1.3,
+    type:"voto"
+  },
+  {
+    id:"prec",
+    cat:"Prestazioni operative",
+    label:"Precisione",
+    desc:"Svolge le attività con attenzione, commettendo pochi errori.",
+    weight:1.2,
+    type:"voto"
+  },
+  {
+    id:"auto",
+    cat:"Prestazioni operative",
+    label:"Autonomia",
+    desc:"È in grado di lavorare senza supervisione continua, seguendo le indicazioni.",
+    weight:1.0,
+    type:"voto"
+  },
+
+  {
+    id:"atti",
+    cat:"Atteggiamento",
+    label:"Attitudine al lavoro",
+    desc:"Dimostra impegno, voglia di fare e spirito propositivo.",
+    weight:1.3,
+    type:"voto"
+  },
+  {
+    id:"coll",
+    cat:"Atteggiamento",
+    label:"Collaborazione",
+    desc:"Lavora bene in squadra, aiuta i colleghi e non crea conflitti.",
+    weight:1.2,
+    type:"voto"
+  },
+  {
+    id:"infl",
+    cat:"Atteggiamento",
+    label:"Influenza positiva",
+    desc:"Contribuisce a un clima sereno e motivante sul posto di lavoro.",
+    weight:1.3,
+    type:"voto"
+  },
+  {
+    id:"fles",
+    cat:"Atteggiamento",
+    label:"Flessibilità",
+    desc:"Si adatta a cambi di programma, incarichi o orari senza problemi.",
+    weight:1.0,
+    type:"voto"
+  },
+  {
+    id:"stress",
+    cat:"Atteggiamento",
+    label:"Gestione dello stress",
+    desc:"Rimane lucido e concentrato anche nelle giornate più impegnative.",
+    weight:1.0,
+    type:"voto"
+  },
+
+  {
+    id:"com",
+    cat:"Comunicazione",
+    label:"Chiarezza nella comunicazione",
+    desc:"Comunica in modo chiaro, evitando equivoci con colleghi e responsabili.",
+    weight:1.1,
+    type:"voto"
+  },
+  {
+    id:"asc",
+    cat:"Comunicazione",
+    label:"Ascolto attivo",
+    desc:"Ascolta le indicazioni e fa domande quando qualcosa non è chiaro.",
+    weight:1.0,
+    type:"voto"
+  },
+  {
+    id:"feed",
+    cat:"Comunicazione",
+    label:"Feedback costruttivo",
+    desc:"Accetta i feedback senza atteggiamenti negativi e ne fa buon uso.",
+    weight:1.0,
+    type:"voto"
+  },
+
+  {
+    id:"aff",
+    cat:"Responsabilità e crescita",
+    label:"Affidabilità",
+    desc:"Mantiene gli impegni e ci si può fidare del suo operato.",
+    weight:1.3,
+    type:"voto"
+  },
+  {
+    id:"ini",
+    cat:"Responsabilità e crescita",
+    label:"Iniziativa",
+    desc:"Propone soluzioni e miglioramenti, non aspetta sempre indicazioni.",
+    weight:1.2,
+    type:"voto"
+  },
+  {
+    id:"app",
+    cat:"Responsabilità e crescita",
+    label:"Capacità di apprendimento",
+    desc:"Impara procedure nuove in tempi ragionevoli e le applica correttamente.",
+    weight:1.1,
+    type:"voto"
+  },
+  {
+    id:"resp",
+    cat:"Responsabilità e crescita",
+    label:"Senso di responsabilità",
+    desc:"Si assume la responsabilità del proprio lavoro e dei propri errori.",
+    weight:1.2,
+    type:"voto"
+  },
+
+  {
+    id:"pres_sett",
+    cat:"Presenze / Assenze",
+    label:"Presenze settimanali (voto diretto)",
+    desc:"Valutazione generale della presenza in base ai turni programmati.",
+    weight:1.3,
+    type:"voto"
+  },
+  {
+    id:"ass_sett",
+    cat:"Presenze / Assenze",
+    label:"Assenze settimanali (giorni)",
+    desc:"Numero di giorni di assenza nella settimana. Verrà trasformato in un voto.",
+    weight:1.3,
+    type:"assenze"
+  }
+];
+
+const STORAGE_KEY = "pagelle_dipendenti_demo_v5";
+const EMP_KEY = "pagelle_dipendenti_elenco_v1";
+
+function loadData(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  }catch(e){
+    console.error(e);
+    return [];
+  }
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getEmployees(){
+  try {
+    let list = JSON.parse(localStorage.getItem(EMP_KEY) || "[]");
+    if(!Array.isArray(list) || list.length === 0){
+      list = defaultEmployees.slice();
+      localStorage.setItem(EMP_KEY, JSON.stringify(list));
+    }
+    return list;
+  } catch(e){
+    console.error(e);
+    localStorage.setItem(EMP_KEY, JSON.stringify(defaultEmployees));
+    return defaultEmployees.slice();
+  }
+}
+function saveEmployees(list){
+  localStorage.setItem(EMP_KEY, JSON.stringify(list));
+}
+
+function assenzeToScore(days){
+  const d = Number(days);
+  if (isNaN(d) || d < 0) return 0;
+  if (d === 0) return 10;
+  if (d === 1) return 7;
+  if (d === 2) return 4;
+  return 1;
+}
+
+function presenzaFlagToScore(flag){
+  if(flag === 1) return 10;
+  if(flag === 0) return 0;
+  return 0;
+}
+
+function upsertPagella(nome,settimana,rawValues){
+  let data = loadData();
+  const key = nome + "|" + settimana;
+
+  const effectiveScores = {};
+  criteria.forEach(c=>{
+    if(c.type === "assenze"){
+      const raw = parseFloat(rawValues[c.id]);
+      effectiveScores[c.id] = assenzeToScore(raw);
+    } else if(c.type === "presenzaFlag"){
+      const raw = parseInt(rawValues[c.id]);
+      effectiveScores[c.id] = presenzaFlagToScore(isNaN(raw) ? null : raw);
+    } else {
+      const raw = parseFloat(rawValues[c.id]);
+      effectiveScores[c.id] = isNaN(raw) ? 0 : raw;
+    }
+  });
+
+  const totPesato = criteria.reduce((s,c)=>{
+    const v = effectiveScores[c.id] || 0;
+    return s + v * c.weight;
+  },0);
+  const sommaPesi = criteria.reduce((s,c)=>s + c.weight,0);
+  const media = sommaPesi>0 ? totPesato/sommaPesi : 0;
+
+  const rec = {
+    key,
+    nome,
+    settimana:parseInt(settimana,10),
+    rawValues,
+    effectiveScores,
+    totale:totPesato,
+    media
+  };
+
+  const idx = data.findIndex(r=>r.key===key);
+  if(idx>=0) data[idx]=rec; else data.push(rec);
+  saveData(data);
+  return rec;
+}
+
+function levelFromMedia(media){
+  if (media >= 8.5) return "Oro";
+  if (media >= 7.5) return "Argento";
+  return "Bronzo";
+}
+
+function computeMonthlyStats(){
+  const data = loadData();
+  const byNome = {};
+  data.forEach(r=>{
+    if(!byNome[r.nome]) byNome[r.nome]=[];
+    byNome[r.nome].push(r);
+  });
+  let stats = [];
+  const emps = getEmployees();
+  emps.forEach(n=>{
+    const recs = byNome[n];
+    if(!recs) return;
+    const mediaSettimane = recs.reduce((s,r)=>s + r.media,0) / recs.length;
+    const livello = levelFromMedia(mediaSettimane);
+    stats.push({ nome:n, mediaSettimane, livello });
+  });
+  if(stats.length===0) return {stats:[],bonusTeam:0};
+
+  const sotto6 = stats.filter(s=>s.mediaSettimane<6).length;
+  const sotto5 = stats.filter(s=>s.mediaSettimane<5).length;
+  let bonusTeam = 0;
+  if(sotto6===0) bonusTeam = 0.2;
+  else if(sotto5>=2) bonusTeam = -0.2;
+
+  const maxMedia = Math.max(...stats.map(s=>s.mediaSettimane));
+  const minMedia = Math.min(...stats.map(s=>s.mediaSettimane));
+
+  stats.forEach(s=>{
+    let bonusPers = 0;
+    if(s.mediaSettimane===maxMedia) bonusPers += 0.1;
+    if(s.mediaSettimane===minMedia) bonusPers -= 0.1;
+    s.bonusTeam = bonusTeam;
+    s.bonusPers = bonusPers;
+    s.votoFinale = s.mediaSettimane + bonusTeam + bonusPers;
+  });
+
+  stats.sort((a,b)=>b.votoFinale - a.votoFinale);
+  stats.forEach((s,i)=>{ s.posizione = i+1; });
+
+  return { stats, bonusTeam };
+}
+
+function computeWeeklyStats(week){
+  const w = parseInt(week,10);
+  const data = loadData().filter(r=>r.settimana === w);
+  const byNome = {};
+  data.forEach(r=>{
+    if(!byNome[r.nome]) byNome[r.nome]=[];
+    byNome[r.nome].push(r);
+  });
+  let stats = [];
+  const emps = getEmployees();
+  emps.forEach(n=>{
+    const recs = byNome[n];
+    if(!recs) return;
+    const mediaSettimana = recs.reduce((s,r)=>s + r.media,0) / recs.length;
+    stats.push({ nome:n, mediaSettimana });
+  });
+  if(stats.length===0) return {stats:[],bonusTeam:0};
+
+  const sotto6 = stats.filter(s=>s.mediaSettimana<6).length;
+  const sotto5 = stats.filter(s=>s.mediaSettimana<5).length;
+  let bonusTeam = 0;
+  if(sotto6===0) bonusTeam = 0.2;
+  else if(sotto5>=2) bonusTeam = -0.2;
+
+  const maxMedia = Math.max(...stats.map(s=>s.mediaSettimana));
+  const minMedia = Math.min(...stats.map(s=>s.mediaSettimana));
+
+  stats.forEach(s=>{
+    let bonusPers = 0;
+    if(s.mediaSettimana===maxMedia) bonusPers += 0.1;
+    if(s.mediaSettimana===minMedia) bonusPers -= 0.1;
+    s.bonusTeam = bonusTeam;
+    s.bonusPers = bonusPers;
+    s.votoFinale = s.mediaSettimana + bonusTeam + bonusPers;
+  });
+
+  stats.sort((a,b)=>b.votoFinale - a.votoFinale);
+  stats.forEach((s,i)=>{ s.posizione = i+1; });
+
+  return { stats, bonusTeam };
+}
+
+function computeBestGrowth(){
+  const data = loadData();
+  const emps = getEmployees();
+  let best = null;
+  emps.forEach(n=>{
+    const w1 = data.find(r=>r.nome===n && r.settimana===1);
+    const w4 = data.find(r=>r.nome===n && r.settimana===4);
+    if(!w1 || !w4) return;
+    const diff = w4.media - w1.media;
+    if(diff > 0 && (!best || diff > best.diff)){
+      best = { nome:n, diff, from:w1.media, to:w4.media };
+    }
+  });
+  return best;
+}
+
+function refreshEmployeeSelects(){
+  const emps = getEmployees();
+  const nomeSel = document.getElementById("nome");
+  const detNomeSel = document.getElementById("det-nome");
+  nomeSel.innerHTML = "";
+  detNomeSel.innerHTML = "";
+  emps.forEach(n=>{
+    const o1 = document.createElement("option");
+    o1.value = n; o1.textContent = n;
+    nomeSel.appendChild(o1);
+    const o2 = document.createElement("option");
+    o2.value = n; o2.textContent = n;
+    detNomeSel.appendChild(o2);
+  });
+}
+
+function renderEmployeeList(){
+  const emps = getEmployees();
+  const ul = document.getElementById("emp-list");
+  ul.innerHTML = "";
+  emps.forEach(n=>{
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = n;
+    const btn = document.createElement("button");
+    btn.textContent = "Rimuovi";
+    btn.addEventListener("click", ()=>{
+      let list = getEmployees().filter(e=>e!==n);
+      saveEmployees(list);
+      refreshEmployeeSelects();
+      renderEmployeeList();
+      updateClassifiche();
+      updatePagellaStampabile();
+      updateDettaglioWeeks();
+    });
+    li.appendChild(span);
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+}
+
+function initUI(){
+  refreshEmployeeSelects();
+  renderEmployeeList();
+
+  const tbody = document.querySelector("#tabella-voti tbody");
+  tbody.innerHTML = "";
+  criteria.forEach(c=>{
+    const tr = document.createElement("tr");
+    let inputHtml = "";
+    if(c.type === "assenze"){
+      inputHtml = '<input type="number" data-crit="'+c.id+'" placeholder="giorni di assenza" min="0" step="1">';
+    } else if(c.type === "presenzaFlag"){
+      inputHtml =
+        '<select data-crit="'+c.id+'" data-kind="presenzaFlag">'+
+        '<option value="">-- seleziona --</option>'+
+        '<option value="1">Presenza completa</option>'+
+        '<option value="0">Non presente in tutti i giorni</option>'+
+        '</select>';
+    } else {
+      inputHtml = '<input type="number" data-crit="'+c.id+'" placeholder="0-10" min="0" max="10" step="0.5">';
+    }
+    tr.innerHTML =
+      '<td>'+c.cat+'</td>'+
+      '<td><div>'+c.label+'</div><div class="desc">'+c.desc+'</div></td>'+
+      '<td>'+c.weight.toFixed(1)+'</td>'+
+      '<td>'+inputHtml+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("salva-btn").addEventListener("click", onSavePagella);
+  document.getElementById("reset-btn").addEventListener("click", ()=>{
+    document.querySelectorAll("[data-crit]").forEach(i=>{
+      if(i.tagName==="INPUT" || i.tagName==="SELECT") i.value="";
+    });
+    document.getElementById("salva-info").textContent="";
+  });
+
+  document.getElementById("classifica-settimana").addEventListener("change", ()=>{
+    updateClassifiche();
+    generateChatSett();
+  });
+
+  document.getElementById("det-mostra-btn").addEventListener("click", ()=>{
+    updatePagellaStampabile();
+    updateDettaglioWeeks();
+  });
+  document.getElementById("det-nome").addEventListener("change", ()=>{
+    updatePagellaStampabile();
+    updateDettaglioWeeks();
+  });
+  document.getElementById("det-settimana").addEventListener("change", updatePagellaStampabile);
+
+  document.getElementById("genera-chat-sett").addEventListener("click", generateChatSett);
+  document.getElementById("genera-chat-mese").addEventListener("click", generateChatMese);
+
+  document.getElementById("emp-add").addEventListener("click", ()=>{
+    const input = document.getElementById("emp-new");
+    const info = document.getElementById("emp-info");
+    const name = (input.value || "").trim().toUpperCase();
+    if(!name){
+      info.textContent = "Inserisci un nome valido.";
+      return;
+    }
+    let list = getEmployees();
+    if(list.includes(name)){
+      info.textContent = "Questo nome è già presente.";
+      return;
+    }
+    list.push(name);
+    list.sort();
+    saveEmployees(list);
+    input.value = "";
+    info.textContent = "Dipendente aggiunto.";
+    refreshEmployeeSelects();
+    renderEmployeeList();
+    updateClassifiche();
+    updatePagellaStampabile();
+    updateDettaglioWeeks();
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.tab;
+      document.querySelectorAll("section.card").forEach(s=>{
+        s.style.display = (s.id===tab) ? "block" : "none";
+      });
+      if(tab==="tab-classifica") {
+        updateClassifiche();
+        generateChatSett();
+        generateChatMese();
+      }
+      if(tab==="tab-dettaglio"){
+        updatePagellaStampabile();
+        updateDettaglioWeeks();
+      }
+      if(tab==="tab-guida"){
+        renderEmployeeList();
+      }
+    });
+  });
+
+  updateClassifiche();
+  updatePagellaStampabile();
+  updateDettaglioWeeks();
+  generateChatSett();
+  generateChatMese();
+}
+
+function onSavePagella(){
+  const nome = document.getElementById("nome").value;
+  const settimana = document.getElementById("settimana").value;
+  const info = document.getElementById("salva-info");
+  if(!nome || !settimana){
+    info.textContent = "Seleziona nome e settimana.";
+    return;
+  }
+  const rawValues = {};
+  let almenoUno = false;
+  document.querySelectorAll("[data-crit]").forEach(el=>{
+    let v = NaN;
+    if(el.tagName === "INPUT"){
+      v = parseFloat(el.value);
+    } else if(el.tagName === "SELECT" && el.dataset.kind === "presenzaFlag"){
+      if(el.value === ""){
+        v = NaN;
+      } else {
+        v = parseInt(el.value);
+      }
+    }
+    if(!isNaN(v)){ rawValues[el.dataset.crit]=v; almenoUno=true; }
+    else rawValues[el.dataset.crit]=0;
+  });
+  if(!almenoUno){
+    info.textContent = "Inserisci almeno un valore prima di salvare.";
+    return;
+  }
+  const rec = upsertPagella(nome,settimana,rawValues);
+  const giorniAssenza = rawValues["ass_sett"] || 0;
+  const votoAssenza = assenzeToScore(giorniAssenza);
+
+  info.innerHTML =
+    '✅ Pagella salvata per <strong>'+nome+'</strong> (settimana '+settimana+'). ' +
+    'Voto finale settimana: <strong>'+rec.media.toFixed(2)+'</strong>. ' +
+    'Assenze: '+giorniAssenza+' giorni → voto '+votoAssenza+'.';
+
+  updateClassifiche();
+  updatePagellaStampabile();
+  updateDettaglioWeeks();
+  generateChatSett();
+  generateChatMese();
+}
+
+function updateClassifiche(){
+  const week = document.getElementById("classifica-settimana").value;
+  const settRes = computeWeeklyStats(week);
+  const tbodySett = document.querySelector("#tabella-classifica-sett tbody");
+  const infoSett = document.getElementById("info-classifica-sett");
+  tbodySett.innerHTML = "";
+  if(settRes.stats.length===0){
+    infoSett.textContent = "Nessun dato per questa settimana.";
+  } else {
+    infoSett.textContent = "";
+    settRes.stats.forEach(s=>{
+      let badgeClass = "";
+      if(s.posizione===1) badgeClass="gold";
+      else if(s.posizione===2) badgeClass="silver";
+      else if(s.posizione===3) badgeClass="bronze";
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><span class="badge '+badgeClass+'">'+s.posizione+'°</span></td>'+
+        '<td>'+s.nome+'</td>'+
+        '<td>'+s.mediaSettimana.toFixed(2)+'</td>'+
+        '<td>'+s.bonusTeam.toFixed(2)+'</td>'+
+        '<td>'+s.bonusPers.toFixed(2)+'</td>'+
+        '<td class="highlight">'+s.votoFinale.toFixed(2)+'</td>';
+      tbodySett.appendChild(tr);
+    });
+  }
+
+  const meseRes = computeMonthlyStats();
+  const tbodyMese = document.querySelector("#tabella-classifica-mese tbody");
+  const infoMese = document.getElementById("info-classifica-mese");
+  tbodyMese.innerHTML = "";
+  const awardTopName = document.getElementById("award-topplayer");
+  const awardTopInfo = document.getElementById("award-topplayer-info");
+  const awardGrowthName = document.getElementById("award-growth");
+  const awardGrowthInfo = document.getElementById("award-growth-info");
+  const awardLevelsSummary = document.getElementById("award-levels-summary");
+
+  if(meseRes.stats.length===0){
+    infoMese.textContent = "Nessun dato inserito.";
+    awardTopName.textContent = "N/D";
+    awardTopInfo.textContent = "Inserisci prima alcune pagelle.";
+    awardGrowthName.textContent = "N/D";
+    awardGrowthInfo.textContent = "Serve almeno settimana 1 e 4 per qualcuno.";
+    awardLevelsSummary.textContent = "Nessun livello ancora calcolato.";
+  } else {
+    infoMese.textContent = "";
+    let countOro=0, countArg=0, countBronzo=0;
+    meseRes.stats.forEach(s=>{
+      if(s.livello==="Oro") countOro++;
+      else if(s.livello==="Argento") countArg++;
+      else countBronzo++;
+      let badgeClass = "";
+      if(s.posizione===1) badgeClass="gold";
+      else if(s.posizione===2) badgeClass="silver";
+      else if(s.posizione===3) badgeClass="bronze";
+
+      let levelSpan = "";
+      if(s.livello==="Oro") levelSpan = '<span class="level-oro">Oro</span>';
+      else if(s.livello==="Argento") levelSpan = '<span class="level-argento">Argento</span>';
+      else levelSpan = '<span class="level-bronzo">Bronzo</span>';
+
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><span class="badge '+badgeClass+'">'+s.posizione+'°</span></td>'+
+        '<td>'+s.nome+'</td>'+
+        '<td>'+s.mediaSettimane.toFixed(2)+'</td>'+
+        '<td>'+levelSpan+'</td>'+
+        '<td>'+s.bonusTeam.toFixed(2)+'</td>'+
+        '<td>'+s.bonusPers.toFixed(2)+'</td>'+
+        '<td class="highlight">'+s.votoFinale.toFixed(2)+'</td>';
+      tbodyMese.appendChild(tr);
+    });
+
+    const top = meseRes.stats[0];
+    awardTopName.textContent = top.nome;
+    awardTopInfo.textContent =
+      'Voto finale mensile: '+top.votoFinale.toFixed(2)+' (media '+top.mediaSettimane.toFixed(2)+', livello '+top.livello+').';
+
+    const bestGrowth = computeBestGrowth();
+    if(bestGrowth){
+      awardGrowthName.textContent = bestGrowth.nome;
+      awardGrowthInfo.textContent =
+        'Da '+bestGrowth.from.toFixed(2)+' in settimana 1 a '+bestGrowth.to.toFixed(2)+' in settimana 4 (crescita +'+bestGrowth.diff.toFixed(2)+').';
+    } else {
+      awardGrowthName.textContent = "N/D";
+      awardGrowthInfo.textContent = "Serve almeno settimana 1 e 4 compilate per qualcuno.";
+    }
+
+    awardLevelsSummary.textContent =
+      'Livelli: Oro '+countOro+' • Argento '+countArg+' • Bronzo '+countBronzo+'.';
+  }
+}
+
+function generateRelazione(nome, settimana, rec){
+  const data = loadData().filter(r=>r.nome===nome);
+  if(!rec) return "Nessuna pagella da analizzare per questo periodo.";
+
+  const vals = criteria.map(c=>{
+    const v = rec.effectiveScores[c.id] ?? 0;
+    return { id:c.id, label:c.label, categoria:c.cat, voto:v, peso:c.weight };
+  });
+
+  const puntiForza = vals
+    .filter(v=>v.voto>=8)
+    .sort((a,b)=>b.voto - a.voto)
+    .slice(0,3);
+
+  const puntiDeboli = vals
+    .filter(v=>v.voto>0 && v.voto<6.5)
+    .sort((a,b)=>a.voto - b.voto || b.peso - a.peso)
+    .slice(0,3);
+
+  let testo = [];
+
+  if(puntiForza.length>0){
+    const descr = puntiForza.map(p=>p.label+' ('+p.voto.toFixed(1)+')').join(", ");
+    testo.push('Punti di forza: '+descr+'. Mantieni questo livello e prova a usarlo come esempio per il team.');
+  }
+
+  if(puntiDeboli.length>0){
+    const descr = puntiDeboli.map(p=>p.label+' ('+p.voto.toFixed(1)+')').join(", ");
+    testo.push('Aree da migliorare: '+descr+'. Nei prossimi giorni concentrati su queste voci per alzare il voto sopra il 7.');
+  } else {
+    testo.push('Al momento non emergono aree critiche sotto la sufficienza: l\'obiettivo è consolidare i risultati e puntare ai livelli più alti.');
+  }
+
+  const precedenti = data.filter(r=>r.settimana < settimana);
+  if(precedenti.length>0){
+    const last = precedenti.reduce((a,b)=> a.settimana > b.settimana ? a : b);
+    const diff = rec.media - last.media;
+    if(diff > 0.05){
+      testo.push('Andamento: in miglioramento rispetto all\'ultima settimana valutata (da '+last.media.toFixed(2)+' a '+rec.media.toFixed(2)+'). Continua così.');
+    } else if(diff < -0.05){
+      testo.push('Andamento: leggero peggioramento rispetto all\'ultima settimana (da '+last.media.toFixed(2)+' a '+rec.media.toFixed(2)+'). Da monitorare e correggere subito.');
+    } else {
+      testo.push('Andamento: stabile rispetto all\'ultima settimana (circa '+rec.media.toFixed(2)+'). Prova a fare un salto di qualità sui punti da migliorare.');
+    }
+  } else {
+    testo.push('È la prima settimana valutata per questo dipendente: questa pagella sarà il punto di partenza per misurare i miglioramenti futuri.');
+  }
+
+  return testo.join(" ");
+}
+
+function updatePagellaStampabile(){
+  const nome = document.getElementById("det-nome").value;
+  const settimana = parseInt(document.getElementById("det-settimana").value,10);
+  const meseTxt = document.getElementById("det-mese").value || "";
+  const da = document.getElementById("det-da").value;
+  const a = document.getElementById("det-a").value;
+
+  const titolo = document.getElementById("det-titolo");
+  const intestazione = document.getElementById("det-intestazione");
+  const weekPill = document.getElementById("det-week-pill");
+  const tbody = document.querySelector("#tabella-dettaglio-pagella tbody");
+  const totali = document.getElementById("det-totali");
+  const relazione = document.getElementById("det-relazione");
+
+  titolo.textContent = nome ? "Pagella di " + nome : "Pagella dipendente";
+  weekPill.textContent = "Settimana " + settimana;
+
+  let testoInt = [];
+  if(meseTxt) testoInt.push("Mese di: " + meseTxt);
+  testoInt.push("Settimana: " + settimana);
+  if(da || a){
+    testoInt.push("Periodo: " + (da || "??") + " → " + (a || "??"));
+  }
+  intestazione.textContent = testoInt.join(" | ");
+
+  const data = loadData();
+  const rec = data.find(r=>r.nome===nome && r.settimana===settimana);
+  tbody.innerHTML = "";
+  if(!rec){
+    totali.textContent = "Nessuna pagella salvata per questo dipendente in questa settimana.";
+    relazione.textContent = "";
+    return;
+  }
+
+  criteria.forEach(c=>{
+    const v = rec.effectiveScores[c.id] ?? 0;
+    let labelText = c.label;
+    if(c.type === "assenze"){
+      const raw = rec.rawValues[c.id] ?? 0;
+      labelText += " (giorni: " + raw + ")";
+    } else if(c.type === "presenzaFlag"){
+      const raw = rec.rawValues[c.id];
+      const stato = raw === 1 ? "Presenza completa" : (raw === 0 ? "Non completa" : "N/D");
+      labelText += " ("+stato+")";
+    }
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td>'+c.cat+'</td>'+
+      '<td><div>'+labelText+'</div><div class="desc">'+c.desc+'</div></td>'+
+      '<td>'+c.weight.toFixed(1)+'</td>'+
+      '<td>'+v.toFixed(2)+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  const sommaPesi = criteria.reduce((s,c)=>s + c.weight,0);
+  totali.innerHTML =
+    'Totale ponderato: <strong>'+rec.totale.toFixed(2)+'</strong> · '+
+    'Somma pesi: '+sommaPesi.toFixed(2)+' · '+
+    'Media ponderata (voto finale settimana): <strong>'+rec.media.toFixed(2)+'</strong>';
+
+  relazione.textContent = generateRelazione(nome, settimana, rec);
+}
+
+function updateDettaglioWeeks(){
+  const nome = document.getElementById("det-nome").value;
+  const data = loadData().filter(r=>r.nome===nome);
+  const tbody = document.querySelector("#tabella-dettaglio-weeks tbody");
+  const info = document.getElementById("info-dettaglio-weeks");
+  tbody.innerHTML = "";
+  if(data.length===0){
+    info.textContent = "Nessuna pagella salvata per questo dipendente.";
+    return;
+  }
+  info.textContent = "";
+  data.sort((a,b)=>a.settimana - b.settimana);
+  data.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = '<td>Settimana '+r.settimana+'</td><td>'+r.media.toFixed(2)+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function generateChatSett(){
+  const week = document.getElementById("classifica-settimana").value;
+  const {stats} = computeWeeklyStats(week);
+  const txtArea = document.getElementById("chat-settimana");
+  if(!stats || stats.length===0){
+    txtArea.value = "Nessun dato per questa settimana.";
+    return;
+  }
+  const top3 = stats.slice(0,3);
+  let righe = [];
+  righe.push("📊 Classifica settimana "+week+" – Posizioni");
+  top3.forEach((s,i)=>{
+    const pos = i+1;
+    const icon = pos===1 ? "1️⃣" : pos===2 ? "2️⃣" : "3️⃣";
+    righe.push(icon+" "+s.nome);
+  });
+  righe.push("");
+  righe.push("Obiettivo: vedere i miglioramenti, non solo la posizione. La pagella serve per crescere, non per punire.");
+  txtArea.value = righe.join("\n");
+}
+
+function generateChatMese(){
+  const {stats} = computeMonthlyStats();
+  const bestGrowth = computeBestGrowth();
+  const txtArea = document.getElementById("chat-mese");
+  if(!stats || stats.length===0){
+    txtArea.value = "Nessun dato ancora per la classifica mensile.";
+    return;
+  }
+  const top3 = stats.slice(0,3);
+  let righe = [];
+  righe.push("🏅 Classifica mensile – Top 3");
+  top3.forEach((s,i)=>{
+    const pos = i+1;
+    const icon = pos===1 ? "🥇" : pos===2 ? "🥈" : "🥉";
+    righe.push(icon+" "+s.nome+" – voto finale "+s.votoFinale.toFixed(2)+" (livello "+s.livello+")");
+  });
+  righe.push("");
+  righe.push("🎁 Livelli premio (media mensile):");
+  righe.push("⭐ Oro: media ≥ 8,5 – premio economico + priorità ferie + bonus performance");
+  righe.push("⭐ Argento: media ≥ 7,5 – congratulazioni ufficiali + piccolo incentivo");
+  righe.push("Bronzo: media < 7,5 – colloquio di miglioramento con obiettivi per il mese successivo");
+  righe.push("");
+  if(bestGrowth){
+    righe.push("🌟 Miglior crescita del mese:");
+    righe.push("➡ "+bestGrowth.nome+" – da "+bestGrowth.from.toFixed(2)+" (sett.1) a "+bestGrowth.to.toFixed(2)+" (sett.4), crescita +"+bestGrowth.diff.toFixed(2)+".");
+    righe.push("");
+  }
+  righe.push("✅ Come usare la pagella:");
+  righe.push("- Pubblicare i risultati per motivare, non per criticare.");
+  righe.push("- Far vedere i miglioramenti, non solo chi è primo.");
+  righe.push("- Premiare anche la crescita, non solo il risultato assoluto.");
+  txtArea.value = righe.join("\n");
+}
+
+initUI();
+</script>
+</body>
+</html>
